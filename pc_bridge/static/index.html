@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WakeGuard — Barcode & PC 6-Digit Challenge Alarm Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulse-ring {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.55); }
+      50% { box-shadow: 0 0 0 18px rgba(244, 63, 94, 0); }
+    }
+    .ringing-glow {
+      animation: pulse-ring 1.3s infinite;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-cyan-500 selection:text-slate-950">
+  <!-- TOP HEADER BAR -->
+  <header class="border-b border-slate-800 bg-slate-950/90 sticky top-0 z-30 backdrop-blur px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 via-amber-500 to-cyan-400 flex items-center justify-center text-slate-950 font-black text-sm shadow-lg shadow-rose-500/20">
+        WG
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-sm font-black tracking-wide text-white uppercase">WakeGuard — Barcode &amp; PC 6-Digit Challenge Hub</h1>
+          <span id="status-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+            ARMED • STANDBY
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-400 font-mono">
+          Android ML Kit Barcode Scanner + Volume Guard (`STREAM_ALARM` 100% Lock) + PC 6-Digit Disarm Terminal
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3 text-xs font-mono">
+      <div class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+        LAN Phone Endpoint: <strong id="lan-endpoint" class="text-cyan-300">http://127.0.0.1:5175</strong>
+      </div>
+      <button
+        onclick="simulateAlarmTrigger()"
+        class="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold transition shadow-lg shadow-rose-600/25"
+      >
+        🔔 Simulate Morning Alarm Ring
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-6 space-y-6">
+    <!-- ACTIVE ALARM BANNER & PC 6-DIGIT CHALLENGE TERMINAL -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- LEFT 7 COLS: PC 6-DIGIT CHALLENGE DISARM TERMINAL -->
+      <div id="challenge-card" class="lg:col-span-7 rounded-2xl border border-cyan-500/40 bg-slate-900/80 p-6 flex flex-col justify-between space-y-5 shadow-2xl">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-cyan-400">
+              Desktop Disarm Protocol • Get Out Of Bed Verification
+            </span>
+            <h2 class="text-xl font-black text-white mt-0.5">
+              6-Digit Computer Challenge Terminal
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">
+              When your phone alarm rings, walk to your computer and enter the 6-digit number displayed on your phone screen (or scan your bathroom/kitchen barcode with ML Kit).
+            </p>
+          </div>
+          <div class="text-right font-mono">
+            <div class="text-[10px] uppercase text-slate-400">Active Alarm State</div>
+            <div id="active-alarm-title" class="text-xs font-bold text-emerald-300 mt-0.5">No Active Siren</div>
+          </div>
+        </div>
+
+        <!-- LIVE RINGING PHONE DISPLAY PREVIEW (Shows the 6-digit code currently on the phone) -->
+        <div id="ringing-preview-box" class="p-4 rounded-xl bg-slate-950 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div class="text-[11px] font-mono uppercase text-slate-400">
+              Code Currently Shown on Phone Lock-Screen (`AlarmActivity.kt`):
+            </div>
+            <div class="flex items-baseline gap-3 mt-1">
+              <span id="live-phone-code" class="text-3xl font-black tracking-[0.25em] text-amber-300 font-mono">
+                ------
+              </span>
+              <span id="code-source-tag" class="text-[11px] font-mono text-slate-400">
+                (TOTP Sync Epoch • Refreshes in <span id="totp-countdown">60</span>s)
+              </span>
+            </div>
+          </div>
+          <div class="flex flex-col items-end gap-1.5">
+            <button
+              onclick="autofillCurrentCode()"
+              class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-mono border border-cyan-500/30"
+            >
+              Copy Phone Code → Input
+            </button>
+            <span class="text-[10px] font-mono text-slate-500">
+              Offline Ack Token: <strong id="offline-ack-code" class="text-purple-300">------</strong>
+            </span>
+          </div>
+        </div>
+
+        <!-- 6-DIGIT INPUT FORM -->
+        <form onsubmit="submitChallengeCode(event)" class="space-y-3">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+            Enter 6-Digit Random Number from Phone (or Registered Barcode String):
+          </label>
+          <div class="flex flex-wrap sm:flex-nowrap gap-3">
+            <input
+              id="code-input"
+              type="text"
+              maxlength="32"
+              placeholder="e.g. 849204"
+              autocomplete="off"
+              class="w-full px-4 py-3.5 rounded-xl bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 focus:outline-none text-2xl font-mono font-black tracking-[0.2em] text-white text-center"
+            />
+            <button
+              type="submit"
+              class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-black text-sm whitespace-nowrap shadow-lg shadow-cyan-500/20 transition"
+            >
+              ✓ Verify &amp; Turn Off Alarm
+            </button>
+          </div>
+          <div id="verify-feedback" class="text-xs font-mono hidden p-3 rounded-xl"></div>
+        </form>
+
+        <!-- QUICK BARCODE SCAN SIMULATOR BUTTONS -->
+        <div class="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <span class="text-slate-400">
+            Or test Android ML Kit Barcode Scan dismissal:
+          </span>
+          <div class="flex flex-wrap gap-2">
+            <button
+              onclick="simulateBarcodeDismiss('012345678905')"
+              class="px-3 py-1.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 font-mono text-xs"
+            >
+              📷 Scan Toothpaste (`012345678905`)
+            </button>
+            <button
+              onclick="simulateBarcodeDismiss('041383090718')"
+              class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-mono text-xs"
+            >
+              📷 Scan Coffee Tin (`041383090718`)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT 5 COLS: BULLETPROOF VOLUME GUARD & ANDROID ARCHITECTURE MONITOR -->
+      <div class="lg:col-span-5 rounded-2xl border border-amber-500/40 bg-slate-900/80 p-6 flex flex-col justify-between space-y-4 shadow-xl">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">
+              Anti-Mute &amp; Max Volume Enforcer
+            </span>
+            <span class="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-[10px] font-mono text-amber-300">
+              500ms WATCHDOG ACTIVE
+            </span>
+          </div>
+          <h2 class="text-lg font-black text-white mt-1">
+            Always-Loud Volume Guard (`VolumeEnforcer.kt`)
+          </h2>
+          <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+            Prevents accidental muted mornings or sleepy volume-down presses. Even if your phone ringer or media volume was turned down to 0% the night before, WakeGuard forces maximum acoustic output:
+          </p>
+
+          <!-- LIVE VOLUME METER & TAMPER COUNTER -->
+          <div class="mt-4 p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+            <div class="flex items-center justify-between text-xs font-mono">
+              <span class="text-slate-400">STREAM_ALARM Output Level:</span>
+              <span id="volume-pct-label" class="text-emerald-400 font-bold">100% (LOCKED MAX)</span>
+            </div>
+            <div class="w-full h-3.5 rounded-full bg-slate-900 border border-slate-800 overflow-hidden p-0.5">
+              <div id="volume-bar" class="h-full rounded-full bg-gradient-to-r from-emerald-500 via-amber-400 to-rose-500 transition-all duration-150" style="width: 100%"></div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] font-mono pt-1">
+              <span class="text-slate-400">
+                Hardware Volume-Down Tamper Attempts Blocked:
+                <strong id="tamper-count" class="text-rose-400 ml-1">0</strong>
+              </span>
+              <button
+                onclick="simulateVolumeDownTamper()"
+                class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30"
+              >
+                Test Volume-Down Press
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 PILLARS OF ANDROID ALARM RELIABILITY -->
+          <div class="mt-4 space-y-2 text-xs">
+            <div class="p-2.5 rounded-lg bg-slate-950/90 border border-slate-800 flex items-start gap-2.5">
+              <span class="text-emerald-400 font-bold">1.</span>
+              <div>
+                <strong class="text-white">Dedicated `USAGE_ALARM` Stream + 500ms Enforcer:</strong>
+                <span class="text-slate-400"> Calls `AudioManager.setStreamVolume(STREAM_ALARM, maxVolume, 0)` every 500ms and intercepts `KEYCODE_VOLUME_DOWN` / `KEYCODE_VOLUME_MUTE`.</span>
+              </div>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950/90 border border-slate-800 flex items-start gap-2.5">
+              <span class="text-cyan-400 font-bold">2.</span>
+              <div>
+                <strong class="text-white">Do Not Disturb (DND) &amp; Silent Mode Bypass:</strong>
+                <span class="text-slate-400"> NotificationChannel configured with `setBypassDnd(true)` and `IMPORTANCE_HIGH` + `AudioFocusRequest(AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)`.</span>
+              </div>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950/90 border border-slate-800 flex items-start gap-2.5">
+              <span class="text-purple-400 font-bold">3.</span>
+              <div>
+                <strong class="text-white">`AlarmManager.setAlarmClock()` + Full-Screen Intent:</strong>
+                <span class="text-slate-400"> Wakes CPU from Doze Mode and launches `AlarmActivity` directly over the lock screen (`setShowWhenLocked(true)` + `setTurnScreenOn(true)`).</span>
+              </div>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950/90 border border-slate-800 flex items-start gap-2.5">
+              <span class="text-rose-400 font-bold">4.</span>
+              <div>
+                <strong class="text-white">`OnBackPressedCallback(true)` Navigation Lock:</strong>
+                <span class="text-slate-400"> Traps system Back gestures and blocks dismissal until ML Kit scans the target barcode or the 6-digit PC challenge completes.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECOND ROW: CONFIGURED ALARMS & REGISTERED ML KIT BARCODES -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- ALARMS SCHEDULED -->
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/75 p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white">Scheduled WakeGuard Alarms</h3>
+            <p class="text-xs text-slate-400">Synced with Android `AlarmScheduler.kt` (`setAlarmClock`)</p>
+          </div>
+        </div>
+
+        <div id="alarms-list" class="space-y-2.5"></div>
+
+        <!-- Add Alarm Form -->
+        <form onsubmit="createAlarm(event)" class="pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-4 gap-2">
+          <input
+            id="alarm-time"
+            type="time"
+            value="07:00"
+            required
+            class="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white font-mono"
+          />
+          <input
+            id="alarm-label"
+            type="text"
+            placeholder="Alarm Label (e.g. Gym Wakeup)"
+            required
+            class="sm:col-span-2 px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white"
+          />
+          <button
+            type="submit"
+            class="px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold text-xs"
+          >
+            + Add Alarm
+          </button>
+        </form>
+      </div>
+
+      <!-- REGISTERED ML KIT BARCODES -->
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/75 p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white">Registered ML Kit Target Barcodes</h3>
+            <p class="text-xs text-slate-400">Place these barcodes in your bathroom or kitchen to force physical movement</p>
+          </div>
+        </div>
+
+        <div id="barcodes-list" class="space-y-2.5"></div>
+
+        <!-- Register Barcode Form -->
+        <form onsubmit="registerBarcode(event)" class="pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-4 gap-2">
+          <input
+            id="bc-label"
+            type="text"
+            placeholder="Item (e.g. Mouthwash)"
+            required
+            class="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white"
+          />
+          <input
+            id="bc-value"
+            type="text"
+            placeholder="Barcode / QR Value"
+            required
+            class="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white font-mono"
+          />
+          <input
+            id="bc-loc"
+            type="text"
+            placeholder="Location (e.g. Bathroom)"
+            class="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white"
+          />
+          <button
+            type="submit"
+            class="px-3 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs"
+          >
+            + Register Barcode
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- THIRD ROW: WAKE-UP VERIFICATION & VOLUME TAMPER LOG -->
+    <div class="rounded-2xl border border-slate-800 bg-slate-900/75 p-5 space-y-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-white">Morning Wake-Up &amp; Disarm Verification Log</h3>
+          <p class="text-xs text-slate-400">Audit trail of response times, disarm methods (ML Kit Barcode vs. PC 6-Digit Code), and blocked volume-down attempts</p>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs font-mono">
+          <thead class="text-slate-400 border-b border-slate-800">
+            <tr>
+              <th class="py-2">Date</th>
+              <th class="py-2">Alarm Protocol</th>
+              <th class="py-2">Triggered</th>
+              <th class="py-2">Dismissed</th>
+              <th class="py-2">Wake Latency</th>
+              <th class="py-2">Disarm Method</th>
+              <th class="py-2">Code / Barcode Verified</th>
+              <th class="py-2 text-right">Blocked Volume Tampers</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody" class="divide-y divide-slate-800/60"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let latestState = null;
+    let audioCtx = null;
+    let sirenInterval = null;
+
+    function playTestSirenBeep() {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(1174.66, audioCtx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.28);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.28);
+      } catch (e) {}
+    }
+
+    async function fetchStatus() {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        latestState = data;
+        renderState(data);
+      } catch (err) {
+        console.error('Status fetch error:', err);
+      }
+    }
+
+    function renderState(data) {
+      document.getElementById('lan-endpoint').textContent = `http://${data.lan_ip}:${data.port}`;
+      const sess = data.active_session || {};
+      const totp = data.totp || {};
+      const badge = document.getElementById('status-badge');
+      const card = document.getElementById('challenge-card');
+      const alarmTitle = document.getElementById('active-alarm-title');
+
+      const displayCode = sess.is_ringing
+        ? (sess.live_challenge_code || totp.pc_challenge_code)
+        : totp.pc_challenge_code;
+
+      document.getElementById('live-phone-code').textContent = displayCode || '------';
+      document.getElementById('totp-countdown').textContent = totp.seconds_remaining ?? 60;
+      document.getElementById('offline-ack-code').textContent = totp.phone_offline_unlock_code || '------';
+      document.getElementById('tamper-count').textContent = sess.override_events_count || 0;
+
+      if (sess.is_ringing) {
+        badge.textContent = '🚨 ALARM RINGING • DISARM REQUIRED';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-rose-500/25 text-rose-300 border border-rose-500/50 animate-pulse';
+        card.classList.add('ringing-glow', 'border-rose-500');
+        alarmTitle.textContent = `RINGING SINCE ${sess.started_at} (${sess.alarm_label})`;
+        alarmTitle.className = 'text-xs font-bold text-rose-400 mt-0.5';
+      } else {
+        badge.textContent = 'ARMED • STANDBY';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+        card.classList.remove('ringing-glow', 'border-rose-500');
+        alarmTitle.textContent = sess.dismissed_at
+          ? `Last Disarmed at ${sess.dismissed_at} via ${sess.dismiss_method}`
+          : 'Standby • Ready for Next Alarm';
+        alarmTitle.className = 'text-xs font-bold text-emerald-300 mt-0.5';
+      }
+
+      // Render alarms
+      const alarmsEl = document.getElementById('alarms-list');
+      alarmsEl.innerHTML = (data.alarms || []).map(a => `
+        <div class="p-3 rounded-xl bg-slate-950 border ${a.enabled ? 'border-cyan-500/30' : 'border-slate-800 opacity-60'} flex items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl font-black font-mono text-white">${a.time_24h}</span>
+              <span class="text-xs font-bold text-cyan-300">${a.label}</span>
+              <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-mono text-amber-300">
+                Vol: ${a.volume_guard_pct}% Lock
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-400 font-mono mt-0.5">
+              Days: ${(a.days || []).join(', ')} • Mode: ${a.dismiss_mode} • Barcode: ${a.target_barcode}
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="toggleAlarm(${a.id})" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold ${a.enabled ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-800 text-slate-400'}">
+              ${a.enabled ? 'ENABLED' : 'OFF'}
+            </button>
+            <button onclick="deleteAlarm(${a.id})" class="px-2 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 text-xs">
+              ✕
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      // Render barcodes
+      const bcEl = document.getElementById('barcodes-list');
+      bcEl.innerHTML = (data.barcodes || []).map(b => `
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-white">${b.label}</span>
+              <span class="px-2 py-0.5 rounded bg-purple-500/20 border border-purple-500/30 text-[10px] font-mono text-purple-300">${b.format}</span>
+            </div>
+            <div class="text-[11px] font-mono text-cyan-300 mt-0.5">
+              Code: <strong>${b.barcode_value}</strong> • Location: <span class="text-slate-400">${b.location_hint}</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="simulateBarcodeDismiss('${b.barcode_value}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 text-[11px] font-mono">
+              Test Scan
+            </button>
+            <button onclick="deleteBarcode(${b.id})" class="px-2 py-1 rounded bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 text-xs">
+              ✕
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      // Render history
+      const histEl = document.getElementById('history-tbody');
+      histEl.innerHTML = (data.history || []).map(h => `
+        <tr class="hover:bg-slate-900/60">
+          <td class="py-2 text-slate-300">${h.date}</td>
+          <td class="py-2 font-semibold text-white">${h.alarm_label}</td>
+          <td class="py-2 text-rose-300">${h.triggered_at}</td>
+          <td class="py-2 text-emerald-300">${h.dismissed_at}</td>
+          <td class="py-2 text-amber-300">${h.duration_seconds}s</td>
+          <td class="py-2">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${h.dismiss_method.includes('BARCODE') ? 'bg-purple-500/20 text-purple-300' : 'bg-cyan-500/20 text-cyan-300'}">
+              ${h.dismiss_method}
+            </span>
+          </td>
+          <td class="py-2 text-cyan-300 font-bold">${h.code_or_barcode_used}</td>
+          <td class="py-2 text-right ${h.volume_tamper_attempts > 0 ? 'text-rose-400 font-bold' : 'text-slate-500'}">
+            ${h.volume_tamper_attempts} blocked
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function autofillCurrentCode() {
+      const code = document.getElementById('live-phone-code').textContent.trim();
+      if (code && code !== '------') {
+        document.getElementById('code-input').value = code;
+      }
+    }
+
+    async function simulateAlarmTrigger() {
+      playTestSirenBeep();
+      const res = await fetch('/api/session/trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          alarm_id: 1,
+          alarm_label: 'Morning Get-Out-Of-Bed Protocol',
+          volume_locked_at_pct: 100
+        })
+      });
+      const data = await res.json();
+      renderState(data);
+    }
+
+    async function simulateVolumeDownTamper() {
+      const bar = document.getElementById('volume-bar');
+      const lbl = document.getElementById('volume-pct-label');
+      // Visually dip volume to 35% for 250ms then snap right back to 100%
+      bar.style.width = '35%';
+      lbl.textContent = '35% (USER PRESSED VOL-) → SNAPPING BACK!';
+      lbl.className = 'text-rose-400 font-bold';
+      setTimeout(async () => {
+        bar.style.width = '100%';
+        lbl.textContent = '100% (LOCKED MAX BY VOLUME ENFORCER)';
+        lbl.className = 'text-emerald-400 font-bold';
+        playTestSirenBeep();
+        const res = await fetch('/api/session/volume-tamper', { method: 'POST' });
+        const data = await res.json();
+        renderState(data);
+      }, 300);
+    }
+
+    async function submitChallengeCode(e) {
+      e.preventDefault();
+      const input = document.getElementById('code-input');
+      const fb = document.getElementById('verify-feedback');
+      const val = input.value.trim();
+      if (!val) return;
+
+      const res = await fetch('/api/session/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: val, method: 'PC_6_DIGIT_CHALLENGE' })
+      });
+      const data = await res.json();
+      fb.classList.remove('hidden');
+      if (res.ok) {
+        fb.className = 'text-xs font-mono p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300';
+        fb.innerHTML = `✓ <strong>ALARM DISARMED!</strong> Verified via ${data.method}. Offline Phone Confirmation Token: <strong>${data.phone_offline_unlock_code}</strong>`;
+        input.value = '';
+        renderState(data.status);
+      } else {
+        fb.className = 'text-xs font-mono p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300';
+        fb.textContent = `✕ ${data.detail || 'Verification failed'}`;
+      }
+    }
+
+    async function simulateBarcodeDismiss(bcValue) {
+      document.getElementById('code-input').value = bcValue;
+      const res = await fetch('/api/session/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: bcValue, method: 'MLKIT_BARCODE_SCAN' })
+      });
+      const data = await res.json();
+      const fb = document.getElementById('verify-feedback');
+      fb.classList.remove('hidden');
+      if (res.ok) {
+        fb.className = 'text-xs font-mono p-3 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-200';
+        fb.innerHTML = `📷 <strong>ML KIT BARCODE VERIFIED (${bcValue})!</strong> Alarm silenced.`;
+        document.getElementById('code-input').value = '';
+        renderState(data.status);
+      }
+    }
+
+    async function createAlarm(e) {
+      e.preventDefault();
+      const time_24h = document.getElementById('alarm-time').value;
+      const label = document.getElementById('alarm-label').value;
+      const res = await fetch('/api/alarms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label, time_24h })
+      });
+      const data = await res.json();
+      document.getElementById('alarm-label').value = '';
+      renderState(data);
+    }
+
+    async function toggleAlarm(id) {
+      const res = await fetch(`/api/alarms/${id}/toggle`, { method: 'POST' });
+      renderState(await res.json());
+    }
+
+    async function deleteAlarm(id) {
+      const res = await fetch(`/api/alarms/${id}`, { method: 'DELETE' });
+      renderState(await res.json());
+    }
+
+    async function registerBarcode(e) {
+      e.preventDefault();
+      const label = document.getElementById('bc-label').value;
+      const barcode_value = document.getElementById('bc-value').value;
+      const location_hint = document.getElementById('bc-loc').value || 'Bathroom';
+      const res = await fetch('/api/barcodes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label, barcode_value, location_hint })
+      });
+      document.getElementById('bc-label').value = '';
+      document.getElementById('bc-value').value = '';
+      renderState(await res.json());
+    }
+
+    async function deleteBarcode(id) {
+      const res = await fetch(`/api/barcodes/${id}`, { method: 'DELETE' });
+      renderState(await res.json());
+    }
+
+    fetchStatus();
+    setInterval(fetchStatus, 2000);
+  </script>
+</body>
+</html>
