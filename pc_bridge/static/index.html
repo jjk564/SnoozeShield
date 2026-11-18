@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WakeGuard — Barcode & PC 6-Digit Challenge Alarm Hub</title>
+  <title>SnoozeShield â€” Barcode & PC 6-Digit Challenge Alarm Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @keyframes pulse-ring {
@@ -24,9 +24,9 @@
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <h1 class="text-sm font-black tracking-wide text-white uppercase">WakeGuard — Barcode &amp; PC 6-Digit Challenge Hub</h1>
+          <h1 class="text-sm font-black tracking-wide text-white uppercase">SnoozeShield â€” Barcode &amp; PC 6-Digit Challenge Hub</h1>
           <span id="status-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-            ARMED • STANDBY
+            ARMED â€¢ STANDBY
           </span>
         </div>
         <p class="text-[11px] text-slate-400 font-mono">
@@ -43,7 +43,7 @@
         onclick="simulateAlarmTrigger()"
         class="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold transition shadow-lg shadow-rose-600/25"
       >
-        🔔 Simulate Morning Alarm Ring
+        ðŸ”” Simulate Morning Alarm Ring
       </button>
     </div>
   </header>
@@ -56,7 +56,7 @@
         <div class="flex flex-wrap items-start justify-between gap-4">
           <div>
             <span class="text-[11px] font-bold uppercase tracking-wider text-cyan-400">
-              Desktop Disarm Protocol • Get Out Of Bed Verification
+              Desktop Disarm Protocol â€¢ Get Out Of Bed Verification
             </span>
             <h2 class="text-xl font-black text-white mt-0.5">
               6-Digit Computer Challenge Terminal
@@ -82,7 +82,7 @@
                 ------
               </span>
               <span id="code-source-tag" class="text-[11px] font-mono text-slate-400">
-                (TOTP Sync Epoch • Refreshes in <span id="totp-countdown">60</span>s)
+                (TOTP Sync Epoch â€¢ Refreshes in <span id="totp-countdown">60</span>s)
               </span>
             </div>
           </div>
@@ -91,7 +91,7 @@
               onclick="autofillCurrentCode()"
               class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-mono border border-cyan-500/30"
             >
-              Copy Phone Code → Input
+              Copy Phone Code â†’ Input
             </button>
             <span class="text-[10px] font-mono text-slate-500">
               Offline Ack Token: <strong id="offline-ack-code" class="text-purple-300">------</strong>
@@ -117,7 +117,7 @@
               type="submit"
               class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-black text-sm whitespace-nowrap shadow-lg shadow-cyan-500/20 transition"
             >
-              ✓ Verify &amp; Turn Off Alarm
+              âœ“ Verify &amp; Turn Off Alarm
             </button>
           </div>
           <div id="verify-feedback" class="text-xs font-mono hidden p-3 rounded-xl"></div>
@@ -133,13 +133,13 @@
               onclick="simulateBarcodeDismiss('012345678905')"
               class="px-3 py-1.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 font-mono text-xs"
             >
-              📷 Scan Toothpaste (`012345678905`)
+              ðŸ“· Scan Toothpaste (`012345678905`)
             </button>
             <button
               onclick="simulateBarcodeDismiss('041383090718')"
               class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-mono text-xs"
             >
-              📷 Scan Coffee Tin (`041383090718`)
+              ðŸ“· Scan Coffee Tin (`041383090718`)
             </button>
           </div>
         </div>
@@ -160,7 +160,7 @@
             Always-Loud Volume Guard (`VolumeEnforcer.kt`)
           </h2>
           <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-            Prevents accidental muted mornings or sleepy volume-down presses. Even if your phone ringer or media volume was turned down to 0% the night before, WakeGuard forces maximum acoustic output:
+            Prevents accidental muted mornings or sleepy volume-down presses. Even if your phone ringer or media volume was turned down to 0% the night before, SnoozeShield forces maximum acoustic output:
           </p>
 
           <!-- LIVE VOLUME METER & TAMPER COUNTER -->
@@ -227,7 +227,7 @@
       <div class="rounded-2xl border border-slate-800 bg-slate-900/75 p-5 space-y-4">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-sm font-bold text-white">Scheduled WakeGuard Alarms</h3>
+            <h3 class="text-sm font-bold text-white">Scheduled SnoozeShield Alarms</h3>
             <p class="text-xs text-slate-400">Synced with Android `AlarmScheduler.kt` (`setAlarmClock`)</p>
           </div>
         </div>
@@ -383,18 +383,18 @@
       document.getElementById('tamper-count').textContent = sess.override_events_count || 0;
 
       if (sess.is_ringing) {
-        badge.textContent = '🚨 ALARM RINGING • DISARM REQUIRED';
+        badge.textContent = 'ðŸš¨ ALARM RINGING â€¢ DISARM REQUIRED';
         badge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-rose-500/25 text-rose-300 border border-rose-500/50 animate-pulse';
         card.classList.add('ringing-glow', 'border-rose-500');
         alarmTitle.textContent = `RINGING SINCE ${sess.started_at} (${sess.alarm_label})`;
         alarmTitle.className = 'text-xs font-bold text-rose-400 mt-0.5';
       } else {
-        badge.textContent = 'ARMED • STANDBY';
+        badge.textContent = 'ARMED â€¢ STANDBY';
         badge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
         card.classList.remove('ringing-glow', 'border-rose-500');
         alarmTitle.textContent = sess.dismissed_at
           ? `Last Disarmed at ${sess.dismissed_at} via ${sess.dismiss_method}`
-          : 'Standby • Ready for Next Alarm';
+          : 'Standby â€¢ Ready for Next Alarm';
         alarmTitle.className = 'text-xs font-bold text-emerald-300 mt-0.5';
       }
 
@@ -411,7 +411,7 @@
               </span>
             </div>
             <div class="text-[11px] text-slate-400 font-mono mt-0.5">
-              Days: ${(a.days || []).join(', ')} • Mode: ${a.dismiss_mode} • Barcode: ${a.target_barcode}
+              Days: ${(a.days || []).join(', ')} â€¢ Mode: ${a.dismiss_mode} â€¢ Barcode: ${a.target_barcode}
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -419,7 +419,7 @@
               ${a.enabled ? 'ENABLED' : 'OFF'}
             </button>
             <button onclick="deleteAlarm(${a.id})" class="px-2 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 text-xs">
-              ✕
+              âœ•
             </button>
           </div>
         </div>
@@ -435,7 +435,7 @@
               <span class="px-2 py-0.5 rounded bg-purple-500/20 border border-purple-500/30 text-[10px] font-mono text-purple-300">${b.format}</span>
             </div>
             <div class="text-[11px] font-mono text-cyan-300 mt-0.5">
-              Code: <strong>${b.barcode_value}</strong> • Location: <span class="text-slate-400">${b.location_hint}</span>
+              Code: <strong>${b.barcode_value}</strong> â€¢ Location: <span class="text-slate-400">${b.location_hint}</span>
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -443,7 +443,7 @@
               Test Scan
             </button>
             <button onclick="deleteBarcode(${b.id})" class="px-2 py-1 rounded bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 text-xs">
-              ✕
+              âœ•
             </button>
           </div>
         </div>
@@ -498,7 +498,7 @@
       const lbl = document.getElementById('volume-pct-label');
       // Visually dip volume to 35% for 250ms then snap right back to 100%
       bar.style.width = '35%';
-      lbl.textContent = '35% (USER PRESSED VOL-) → SNAPPING BACK!';
+      lbl.textContent = '35% (USER PRESSED VOL-) â†’ SNAPPING BACK!';
       lbl.className = 'text-rose-400 font-bold';
       setTimeout(async () => {
         bar.style.width = '100%';
@@ -527,12 +527,12 @@
       fb.classList.remove('hidden');
       if (res.ok) {
         fb.className = 'text-xs font-mono p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300';
-        fb.innerHTML = `✓ <strong>ALARM DISARMED!</strong> Verified via ${data.method}. Offline Phone Confirmation Token: <strong>${data.phone_offline_unlock_code}</strong>`;
+        fb.innerHTML = `âœ“ <strong>ALARM DISARMED!</strong> Verified via ${data.method}. Offline Phone Confirmation Token: <strong>${data.phone_offline_unlock_code}</strong>`;
         input.value = '';
         renderState(data.status);
       } else {
         fb.className = 'text-xs font-mono p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300';
-        fb.textContent = `✕ ${data.detail || 'Verification failed'}`;
+        fb.textContent = `âœ• ${data.detail || 'Verification failed'}`;
       }
     }
 
@@ -548,7 +548,7 @@
       fb.classList.remove('hidden');
       if (res.ok) {
         fb.className = 'text-xs font-mono p-3 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-200';
-        fb.innerHTML = `📷 <strong>ML KIT BARCODE VERIFIED (${bcValue})!</strong> Alarm silenced.`;
+        fb.innerHTML = `ðŸ“· <strong>ML KIT BARCODE VERIFIED (${bcValue})!</strong> Alarm silenced.`;
         document.getElementById('code-input').value = '';
         renderState(data.status);
       }

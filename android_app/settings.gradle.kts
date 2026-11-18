@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "WakeGuardAlarm"
+rootProject.name = "SnoozeShield"
 include(":app")

@@ -1,18 +1,18 @@
-package com.nexus.wakeguard.util
+﻿package com.nexus.snoozeshield.util
 
 import java.util.Locale
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
 /**
- * ChallengeGenerator — Offline + LAN Synchronized 6-Digit Computer Challenge Engine.
+ * ChallengeGenerator â€” Offline + LAN Synchronized 6-Digit Computer Challenge Engine.
  *
  * Uses HMAC-SHA256 over 60-second epochs matching `pc_bridge/server.py` (`compute_offline_totp`).
  * - Even if home Wi-Fi drops overnight, the Android app and the PC both compute the exact same
  *   6-digit Challenge Code and 6-digit Offline Unlock Confirmation Token!
  */
 object ChallengeGenerator {
-    private const val DEFAULT_SHARED_SECRET = "NX-WAKEGUARD-2026-MASTER-KEY"
+    private const val DEFAULT_SHARED_SECRET = "NX-SNOOZESHIELD-2026-MASTER-KEY"
     private const val EPOCH_INTERVAL_SECONDS = 60L
 
     data class ChallengePair(
@@ -29,8 +29,8 @@ object ChallengeGenerator {
         val epoch = unixSeconds / EPOCH_INTERVAL_SECONDS
         val secondsRemaining = (EPOCH_INTERVAL_SECONDS - (unixSeconds % EPOCH_INTERVAL_SECONDS)).toInt()
 
-        val pcCode = hmacSixDigit(secretKey, "WAKEGUARD-CHALLENGE-$epoch")
-        val ackCode = hmacSixDigit(secretKey, "WAKEGUARD-UNLOCK-ACK-$epoch-$pcCode")
+        val pcCode = hmacSixDigit(secretKey, "SNOOZESHIELD-CHALLENGE-$epoch")
+        val ackCode = hmacSixDigit(secretKey, "SNOOZESHIELD-UNLOCK-ACK-$epoch-$pcCode")
 
         return ChallengePair(
             epoch = epoch,

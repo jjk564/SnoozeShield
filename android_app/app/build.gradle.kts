@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.nexus.wakeguard"
+    namespace = "com.nexus.snoozeshield"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.nexus.wakeguard"
+        applicationId = "com.nexus.snoozeshield"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

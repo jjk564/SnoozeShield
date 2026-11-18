@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 import json
 import time
@@ -18,12 +18,12 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "wakeguard.db")
+DB_PATH = os.path.join(BASE_DIR, "snoozeshield.db")
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 app = FastAPI(
-    title="WakeGuard — Barcode & PC 6-Digit Challenge Alarm Hub",
-    description="Companion PC Challenge Terminal, Volume Guard Monitor & LAN/Offline TOTP Synchronizer for the WakeGuard Android App",
+    title="SnoozeShield â€” Barcode & PC 6-Digit Challenge Alarm Hub",
+    description="Companion PC Challenge Terminal, Volume Guard Monitor & LAN/Offline TOTP Synchronizer for the SnoozeShield Android App",
     version="1.0.0",
 )
 
@@ -65,13 +65,13 @@ def compute_offline_totp(secret_key: str, timestamp: Optional[float] = None, int
     epoch = now // interval
     seconds_remaining = interval - (now % interval)
 
-    msg = f"WAKEGUARD-CHALLENGE-{epoch}".encode("utf-8")
+    msg = f"SNOOZESHIELD-CHALLENGE-{epoch}".encode("utf-8")
     digest = hmac.new(secret_key.encode("utf-8"), msg, hashlib.sha256).hexdigest()
     code_int = int(digest[:8], 16) % 1000000
     code_str = f"{code_int:06d}"
 
     # Secondary unlock confirmation code (in case user wants to type a response code back into phone)
-    ack_msg = f"WAKEGUARD-UNLOCK-ACK-{epoch}-{code_str}".encode("utf-8")
+    ack_msg = f"SNOOZESHIELD-UNLOCK-ACK-{epoch}-{code_str}".encode("utf-8")
     ack_digest = hmac.new(secret_key.encode("utf-8"), ack_msg, hashlib.sha256).hexdigest()
     ack_code = f"{int(ack_digest[:8], 16) % 1000000:06d}"
 
@@ -112,7 +112,7 @@ def init_db():
                 id INTEGER PRIMARY KEY CHECK (id = 1),
                 is_ringing INTEGER NOT NULL DEFAULT 0,
                 alarm_id INTEGER,
-                alarm_label TEXT DEFAULT 'Morning WakeGuard Protocol',
+                alarm_label TEXT DEFAULT 'Morning SnoozeShield Protocol',
                 started_at TEXT,
                 live_challenge_code TEXT,
                 target_barcode TEXT DEFAULT '012345678905',
@@ -151,7 +151,7 @@ def init_db():
         row = conn.execute("SELECT value FROM config WHERE key = 'shared_secret'").fetchone()
         if not row:
             conn.execute(
-                "INSERT INTO config (key, value) VALUES ('shared_secret', 'NX-WAKEGUARD-2026-MASTER-KEY')"
+                "INSERT INTO config (key, value) VALUES ('shared_secret', 'NX-SNOOZESHIELD-2026-MASTER-KEY')"
             )
 
         # Ensure single active_session row exists
@@ -161,7 +161,7 @@ def init_db():
             conn.execute(
                 """INSERT INTO active_session
                    (id, is_ringing, alarm_id, alarm_label, started_at, live_challenge_code, target_barcode, target_barcode_label, volume_locked_at_pct, override_events_count)
-                   VALUES (1, 0, 1, '06:30 AM — Get Out Of Bed Protocol', NULL, ?, '012345678905', 'Bathroom Toothpaste Barcode', 100, 0)""",
+                   VALUES (1, 0, 1, '06:30 AM â€” Get Out Of Bed Protocol', NULL, ?, '012345678905', 'Bathroom Toothpaste Barcode', 100, 0)""",
                 (code,),
             )
 
@@ -220,7 +220,7 @@ def init_db():
             )
             conn.execute(
                 "INSERT INTO RegisteredBarcodes (label, barcode_value, format, location_hint, created_at) VALUES (?, ?, ?, ?, ?)",
-                ("Nexus Desk QR Tag", "NEXUS-WAKEGUARD-DESK-01", "QR_CODE", "PC Monitor Stand", now_str),
+                ("Nexus Desk QR Tag", "NEXUS-SNOOZESHIELD-DESK-01", "QR_CODE", "PC Monitor Stand", now_str),
             )
 
         # Seed sample wake history if empty
@@ -251,7 +251,7 @@ def on_startup():
 
 def _get_shared_secret(conn) -> str:
     row = conn.execute("SELECT value FROM config WHERE key = 'shared_secret'").fetchone()
-    return row["value"] if row else "NX-WAKEGUARD-2026-MASTER-KEY"
+    return row["value"] if row else "NX-SNOOZESHIELD-2026-MASTER-KEY"
 
 
 @app.get("/api/status")
@@ -270,7 +270,7 @@ def api_get_status():
         history = [dict(r) for r in conn.execute("SELECT * FROM wake_history ORDER BY id DESC LIMIT 20").fetchall()]
 
     return {
-        "service": "WakeGuard PC Challenge Hub",
+        "service": "SnoozeShield PC Challenge Hub",
         "lan_ip": get_lan_ip(),
         "port": 5175,
         "shared_secret": secret,
@@ -426,7 +426,7 @@ def api_verify_and_dismiss(payload: VerifyCodeRequest):
                 matched_method,
                 submitted,
                 int(session.get("override_events_count") or 0),
-                session.get("alarm_label") or "WakeGuard Alarm",
+                session.get("alarm_label") or "SnoozeShield Alarm",
             ),
         )
         conn.commit()
@@ -534,9 +534,9 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.environ.get("WAKEGUARD_PORT", "5175"))
+    port = int(os.environ.get("SNOOZESHIELD_PORT", "5175"))
     print("=" * 68)
-    print(f"  WakeGuard PC Challenge Hub & Android Sync Server (Port {port})")
+    print(f"  SnoozeShield PC Challenge Hub & Android Sync Server (Port {port})")
     print(f"  - Local / Nexus OS Embed URL : http://localhost:{port}")
     print(f"  - LAN Phone Sync Endpoint    : http://{get_lan_ip()}:{port}")
     print("=" * 68)

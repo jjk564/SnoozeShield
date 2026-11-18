@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 import subprocess
 import webbrowser
@@ -9,7 +9,7 @@ SERVER_SCRIPT = os.path.join(PC_BRIDGE_DIR, "server.py")
 
 
 def main():
-    port = int(os.environ.get("WAKEGUARD_PORT", "5175"))
+    port = int(os.environ.get("SNOOZESHIELD_PORT", "5175"))
     if "--no-browser" not in sys.argv:
         webbrowser.open(f"http://localhost:{port}")
     subprocess.run([sys.executable, SERVER_SCRIPT], cwd=PC_BRIDGE_DIR)

@@ -1,4 +1,4 @@
-package com.nexus.wakeguard.ui
+﻿package com.nexus.snoozeshield.ui
 
 import android.app.AlarmManager
 import android.app.NotificationManager
@@ -24,11 +24,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nexus.wakeguard.receiver.AlarmScheduler
-import com.nexus.wakeguard.service.AlarmRingingService
+import com.nexus.snoozeshield.receiver.AlarmScheduler
+import com.nexus.snoozeshield.service.AlarmRingingService
 
 /**
- * MainActivity — WakeGuard Alarm Configurator, Volume Guard Readiness Audit & PC Bridge Pairing.
+ * MainActivity â€” SnoozeShield Alarm Configurator, Volume Guard Readiness Audit & PC Bridge Pairing.
  *
  * Allows the user to:
  * 1. Configure their morning alarm time, target ML Kit barcode string, and PC Challenge Hub LAN IP.
@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val prefs = getSharedPreferences("wakeguard_prefs", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("snoozeshield_prefs", Context.MODE_PRIVATE)
 
         setContent {
             var hour by remember { mutableIntStateOf(prefs.getInt("alarm_hour", 6)) }
@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
             var pcHubUrl by remember {
                 mutableStateOf(prefs.getString("pc_hub_url", "http://192.168.1.100:5175") ?: "http://192.168.1.100:5175")
             }
-            var statusMessage by remember { mutableStateOf("Ready to arm WakeGuard Protocol.") }
+            var statusMessage by remember { mutableStateOf("Ready to arm SnoozeShield Protocol.") }
 
             val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
             val notifManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "WAKEGUARD // ANDROID BARCODE & PC ALARM",
+                    text = "SNOOZESHIELD // ANDROID BARCODE & PC ALARM",
                     color = Color(0xFF22D3EE),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Black,
@@ -100,20 +100,20 @@ class MainActivity : ComponentActivity() {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "🔊 ALWAYS-LOUD VOLUME GUARD AUDIT",
+                        text = "ðŸ”Š ALWAYS-LOUD VOLUME GUARD AUDIT",
                         color = Color(0xFFFBBF24),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = FontFamily.Monospace
                     )
                     Text(
-                        text = "• Exact Alarm Clock Permission: ${if (exactGranted) "✓ GRANTED" else "⚠ NEEDS GRANT"}",
+                        text = "â€¢ Exact Alarm Clock Permission: ${if (exactGranted) "âœ“ GRANTED" else "âš  NEEDS GRANT"}",
                         color = if (exactGranted) Color(0xFF34D399) else Color(0xFFF43F5E),
                         fontSize = 12.sp,
                         fontFamily = FontFamily.Monospace
                     )
                     Text(
-                        text = "• Do Not Disturb Bypass Policy: ${if (dndGranted) "✓ GRANTED" else "⚠ CLICK TO GRANT"}",
+                        text = "â€¢ Do Not Disturb Bypass Policy: ${if (dndGranted) "âœ“ GRANTED" else "âš  CLICK TO GRANT"}",
                         color = if (dndGranted) Color(0xFF34D399) else Color(0xFFFBBF24),
                         fontSize = 12.sp,
                         fontFamily = FontFamily.Monospace
@@ -155,7 +155,7 @@ class MainActivity : ComponentActivity() {
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(
-                        text = "⏰ SCHEDULE MORNING ALARM PROTOCOL",
+                        text = "â° SCHEDULE MORNING ALARM PROTOCOL",
                         color = Color.White,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
@@ -218,14 +218,14 @@ class MainActivity : ComponentActivity() {
                                 pcHubUrl = pcHubUrl
                             )
                             statusMessage = if (triggerMs > 0) {
-                                "✓ Armed for %02d:%02d with 100%% Volume Guard!".format(hour, minute)
+                                "âœ“ Armed for %02d:%02d with 100%% Volume Guard!".format(hour, minute)
                             } else {
-                                "⚠ Grant Exact Alarm permission in system settings."
+                                "âš  Grant Exact Alarm permission in system settings."
                             }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Save & Arm Daily WakeGuard Alarm")
+                        Text("Save & Arm Daily SnoozeShield Alarm")
                     }
                 }
 
@@ -252,7 +252,7 @@ class MainActivity : ComponentActivity() {
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE11D48)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("🚨 Test Full-Screen Alarm + Barcode / PC Challenge Now", color = Color.White)
+                    Text("ðŸš¨ Test Full-Screen Alarm + Barcode / PC Challenge Now", color = Color.White)
                 }
 
                 Text(

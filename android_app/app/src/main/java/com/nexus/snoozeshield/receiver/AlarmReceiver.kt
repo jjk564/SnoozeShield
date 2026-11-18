@@ -1,13 +1,13 @@
-package com.nexus.wakeguard.receiver
+﻿package com.nexus.snoozeshield.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import com.nexus.wakeguard.service.AlarmRingingService
+import com.nexus.snoozeshield.service.AlarmRingingService
 
 /**
- * AlarmReceiver — Receives exact `AlarmManager.setAlarmClock` broadcasts & `BOOT_COMPLETED`.
+ * AlarmReceiver â€” Receives exact `AlarmManager.setAlarmClock` broadcasts & `BOOT_COMPLETED`.
  *
  * Immediately starts `AlarmRingingService` as a Foreground Service (`mediaPlayback`) and
  * triggers the Full-Screen Intent to launch `AlarmActivity` over the lock screen.
@@ -18,7 +18,7 @@ class AlarmReceiver : BroadcastReceiver() {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED -> {
                 // Re-schedule saved active alarms from SharedPreferences on device reboot
-                val prefs = context.getSharedPreferences("wakeguard_prefs", Context.MODE_PRIVATE)
+                val prefs = context.getSharedPreferences("snoozeshield_prefs", Context.MODE_PRIVATE)
                 if (prefs.getBoolean("alarm_enabled", true)) {
                     val hour = prefs.getInt("alarm_hour", 6)
                     val min = prefs.getInt("alarm_minute", 30)
@@ -29,7 +29,7 @@ class AlarmReceiver : BroadcastReceiver() {
                 }
             }
 
-            "com.nexus.wakeguard.ACTION_TRIGGER_ALARM" -> {
+            "com.nexus.snoozeshield.ACTION_TRIGGER_ALARM" -> {
                 val label = intent.getStringExtra("extra_alarm_label") ?: "Morning Get-Out-Of-Bed Protocol"
                 val barcode = intent.getStringExtra("extra_target_barcode") ?: "012345678905"
                 val pcUrl = intent.getStringExtra("extra_pc_hub_url") ?: "http://192.168.1.100:5175"

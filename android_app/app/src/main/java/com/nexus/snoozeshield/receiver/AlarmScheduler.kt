@@ -1,15 +1,15 @@
-package com.nexus.wakeguard.receiver
+﻿package com.nexus.snoozeshield.receiver
 
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import com.nexus.wakeguard.ui.MainActivity
+import com.nexus.snoozeshield.ui.MainActivity
 import java.util.Calendar
 
 /**
- * AlarmScheduler — Schedules Exact Doze-Immune Alarms via `AlarmManager.setAlarmClock()`.
+ * AlarmScheduler â€” Schedules Exact Doze-Immune Alarms via `AlarmManager.setAlarmClock()`.
  *
  * Why `setAlarmClock()` is critical:
  * - Unlike `setExactAndAllowWhileIdle()` (which Android Doze mode can throttle to once per 9 minutes),
@@ -47,7 +47,7 @@ object AlarmScheduler {
         }
 
         val triggerIntent = Intent(context, AlarmReceiver::class.java).apply {
-            action = "com.nexus.wakeguard.ACTION_TRIGGER_ALARM"
+            action = "com.nexus.snoozeshield.ACTION_TRIGGER_ALARM"
             putExtra("extra_alarm_id", alarmId)
             putExtra("extra_alarm_label", label)
             putExtra("extra_target_barcode", targetBarcode)
@@ -78,7 +78,7 @@ object AlarmScheduler {
     fun cancelAlarm(context: Context, alarmId: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val triggerIntent = Intent(context, AlarmReceiver::class.java).apply {
-            action = "com.nexus.wakeguard.ACTION_TRIGGER_ALARM"
+            action = "com.nexus.snoozeshield.ACTION_TRIGGER_ALARM"
         }
         val operationPi = PendingIntent.getBroadcast(
             context,

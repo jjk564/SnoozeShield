@@ -1,4 +1,4 @@
-package com.nexus.wakeguard.service
+﻿package com.nexus.snoozeshield.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -19,9 +19,9 @@ import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import androidx.core.app.NotificationCompat
-import com.nexus.wakeguard.ui.AlarmActivity
-import com.nexus.wakeguard.util.ChallengeGenerator
-import com.nexus.wakeguard.util.VolumeEnforcer
+import com.nexus.snoozeshield.ui.AlarmActivity
+import com.nexus.snoozeshield.util.ChallengeGenerator
+import com.nexus.snoozeshield.util.VolumeEnforcer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -37,7 +37,7 @@ import org.json.JSONObject
 import kotlin.math.sin
 
 /**
- * AlarmRingingService — Unstoppable Foreground Siren, Volume Guard & PC Sync Service.
+ * AlarmRingingService â€” Unstoppable Foreground Siren, Volume Guard & PC Sync Service.
  *
  * - Posts a high-priority Notification with `setFullScreenIntent(alarmPendingIntent, true)`
  *   and `setBypassDnd(true)` so `AlarmActivity` launches over the lock screen.
@@ -51,10 +51,10 @@ import kotlin.math.sin
 class AlarmRingingService : Service() {
 
     companion object {
-        const val CHANNEL_ID = "wakeguard_critical_alarm_channel"
+        const val CHANNEL_ID = "snoozeshield_critical_alarm_channel"
         const val NOTIFICATION_ID = 7701
-        const val ACTION_START_ALARM = "com.nexus.wakeguard.ACTION_START_ALARM"
-        const val ACTION_STOP_ALARM = "com.nexus.wakeguard.ACTION_STOP_ALARM"
+        const val ACTION_START_ALARM = "com.nexus.snoozeshield.ACTION_START_ALARM"
+        const val ACTION_STOP_ALARM = "com.nexus.snoozeshield.ACTION_STOP_ALARM"
         const val EXTRA_ALARM_LABEL = "extra_alarm_label"
         const val EXTRA_TARGET_BARCODE = "extra_target_barcode"
         const val EXTRA_PC_HUB_URL = "extra_pc_hub_url"
@@ -79,7 +79,7 @@ class AlarmRingingService : Service() {
             return START_NOT_STICKY
         }
 
-        val label = intent?.getStringExtra(EXTRA_ALARM_LABEL) ?: "Morning WakeGuard Protocol"
+        val label = intent?.getStringExtra(EXTRA_ALARM_LABEL) ?: "Morning SnoozeShield Protocol"
         val targetBarcode = intent?.getStringExtra(EXTRA_TARGET_BARCODE) ?: "012345678905"
         val pcHubUrl = intent?.getStringExtra(EXTRA_PC_HUB_URL) ?: "http://192.168.1.100:5175"
 
@@ -87,7 +87,7 @@ class AlarmRingingService : Service() {
         val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = pm.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
-            "WakeGuard::CriticalAlarmWakeLock"
+            "SnoozeShield::CriticalAlarmWakeLock"
         ).apply { acquire(30 * 60 * 1000L) }
 
         // 2. Generate the 6-digit challenge code
@@ -122,7 +122,7 @@ class AlarmRingingService : Service() {
             val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "WakeGuard Unstoppable Morning Siren",
+                "SnoozeShield Unstoppable Morning Siren",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = "Full-screen lockscreen alarm with Do Not Disturb bypass"
@@ -157,7 +157,7 @@ class AlarmRingingService : Service() {
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentTitle("🚨 WAKEGUARD: $label")
+            .setContentTitle("ðŸš¨ SNOOZESHIELD: $label")
             .setContentText("Scan Barcode ($targetBarcode) or Enter [$challengeCode] on PC to turn off!")
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)

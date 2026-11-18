@@ -1,4 +1,4 @@
-package com.nexus.wakeguard.util
+﻿package com.nexus.snoozeshield.util
 
 import android.app.NotificationManager
 import android.content.Context
@@ -19,7 +19,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
- * VolumeEnforcer — Multi-Layer Acoustic Guarantee for Morning Alarms.
+ * VolumeEnforcer â€” Multi-Layer Acoustic Guarantee for Morning Alarms.
  *
  * Solves the problem where phone/alarm volumes accidentally drop or get muted overnight:
  * 1. Forces STREAM_ALARM (and fallback STREAM_MUSIC) to 100% of getStreamMaxVolume() before playback starts.

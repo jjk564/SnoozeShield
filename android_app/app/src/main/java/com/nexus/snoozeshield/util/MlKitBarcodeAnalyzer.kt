@@ -1,4 +1,4 @@
-package com.nexus.wakeguard.util
+﻿package com.nexus.snoozeshield.util
 
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
@@ -10,7 +10,7 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 
 /**
- * MlKitBarcodeAnalyzer — CameraX ImageAnalysis.Analyzer powered by Google ML Kit Barcode Scanning.
+ * MlKitBarcodeAnalyzer â€” CameraX ImageAnalysis.Analyzer powered by Google ML Kit Barcode Scanning.
  *
  * Inspects real-time camera frames for UPC-A, UPC-E, EAN-13, EAN-8, Code-128, and QR Codes.
  * When a scanned barcode matches the registered target barcode (or any allowed wake barcode),

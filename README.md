@@ -1,4 +1,4 @@
-# WakeGuard — Barcode & PC 6-Digit Challenge Alarm App
+﻿# SnoozeShield â€” Barcode & PC 6-Digit Challenge Alarm App
 
 An unstoppable Android morning alarm + Desktop Challenge Hub designed to force you out of bed in the morning and guarantee the alarm sound is **always loud**, even if your phone volume was accidentally turned down or muted the night before.
 
@@ -23,7 +23,7 @@ To solve the problem where phone or alarm volumes change overnight and you don't
 1. **Dedicated `STREAM_ALARM` / `AudioAttributes.USAGE_ALARM` Routing**:
    - Plays alarm audio exclusively on the `USAGE_ALARM` stream with `FLAG_AUDIBILITY_ENFORCED` (independent of silent/vibrate ringer switches or media volume).
 2. **500ms Continuous Max-Volume Watchdog + `ContentObserver`**:
-   - Before playback begins—and every `500ms` while ringing—`VolumeEnforcer` checks `AudioManager.getStreamVolume(STREAM_ALARM)` against `getStreamMaxVolume(STREAM_ALARM)` and forces it back to **100% (`setStreamVolume(STREAM_ALARM, maxVol, 0)`)** and un-mutes the stream (`ADJUST_UNMUTE`).
+   - Before playback beginsâ€”and every `500ms` while ringingâ€”`VolumeEnforcer` checks `AudioManager.getStreamVolume(STREAM_ALARM)` against `getStreamMaxVolume(STREAM_ALARM)` and forces it back to **100% (`setStreamVolume(STREAM_ALARM, maxVol, 0)`)** and un-mutes the stream (`ADJUST_UNMUTE`).
 3. **Hardware Volume Button Interceptor (`AlarmActivity.onKeyDown`)**:
    - Intercepts `KEYCODE_VOLUME_DOWN`, `KEYCODE_VOLUME_UP`, and `KEYCODE_VOLUME_MUTE` while the alarm screen is active so sleepy button presses cannot lower the volume.
 4. **Do Not Disturb (DND) Bypass & Exclusive Audio Focus**:
@@ -44,19 +44,19 @@ To solve the problem where phone or alarm volumes change overnight and you don't
 
 ## 2. Installing & Auto-Updating on Your Phone via Obtainium
 
-This repository includes an automated GitHub Actions pipeline (`.github/workflows/android-release.yml`) that compiles the Android app in the cloud on every push to `main` and publishes a GitHub Release with `wakeguard-alarm-v1.0.<build>.apk` attached—which **Obtainium** tracks directly!
+This repository includes an automated GitHub Actions pipeline (`.github/workflows/android-release.yml`) that compiles the Android app in the cloud on every push to `main` and publishes a GitHub Release with `snoozeshield-alarm-v1.0.<build>.apk` attachedâ€”which **Obtainium** tracks directly!
 
 ### Step 1: Make the Repo Accessible to Obtainium (Choose One)
-- **Option A (Easiest — Public Repo, No Token Needed)**:
-  Run `gh repo edit jjk564/wakeguard-alarm --visibility public --accept-visibility-change-consequences` (or ask Antigravity to flip it to public). There are zero personal secrets or API keys in this repo.
+- **Option A (Easiest â€” Public Repo, No Token Needed)**:
+  Run `gh repo edit jjk564/SnoozeShield --visibility public --accept-visibility-change-consequences` (or ask Antigravity to flip it to public). There are zero personal secrets or API keys in this repo.
 - **Option B (Keep Repo Private)**:
-  In **Obtainium → Settings → GitHub Personal Access Token**, paste a GitHub token with `repo` read access.
+  In **Obtainium â†’ Settings â†’ GitHub Personal Access Token**, paste a GitHub token with `repo` read access.
 
 ### Step 2: Add to Obtainium on Your Phone
 1. Open **Obtainium** on your Android phone and tap **Add App**.
 2. In **App Source URL**, enter:
    ```text
-   https://github.com/jjk564/wakeguard-alarm
+   https://github.com/jjk564/SnoozeShield
    ```
 3. Tap **Add** and then **Install**. Whenever we push code changes at the end of a turn, GitHub Actions will automatically build a new release (`v1.0.x`) and Obtainium will notify you with a 1-tap update!
 
@@ -65,6 +65,6 @@ This repository includes an automated GitHub Actions pipeline (`.github/workflow
 ## 3. Quick Start (PC Challenge Hub)
 
 ```powershell
-# Launch the WakeGuard PC Challenge Hub on http://localhost:5175
+# Launch the SnoozeShield PC Challenge Hub on http://localhost:5175
 python start.py --no-browser
 ```

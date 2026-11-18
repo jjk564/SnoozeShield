@@ -1,4 +1,4 @@
-package com.nexus.wakeguard.ui
+﻿package com.nexus.snoozeshield.ui
 
 import android.Manifest
 import android.app.KeyguardManager
@@ -37,14 +37,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import com.nexus.wakeguard.service.AlarmRingingService
-import com.nexus.wakeguard.util.ChallengeGenerator
-import com.nexus.wakeguard.util.MlKitBarcodeAnalyzer
+import com.nexus.snoozeshield.service.AlarmRingingService
+import com.nexus.snoozeshield.util.ChallengeGenerator
+import com.nexus.snoozeshield.util.MlKitBarcodeAnalyzer
 import kotlinx.coroutines.delay
 import java.util.concurrent.Executors
 
 /**
- * AlarmActivity — Full-Screen Lockscreen Challenge Activity.
+ * AlarmActivity â€” Full-Screen Lockscreen Challenge Activity.
  *
  * Implements all core user requirements:
  * 1. Full-Screen Intent Lockscreen Wake (`setShowWhenLocked(true)`, `setTurnScreenOn(true)`, `FLAG_KEEP_SCREEN_ON`).
@@ -55,7 +55,7 @@ import java.util.concurrent.Executors
  * 4. Dual Disarm Modes:
  *    - **ML Kit Barcode Scanning**: Live CameraX viewfinder scanning for the target barcode (e.g. bathroom toothpaste).
  *    - **6-Digit Computer Challenge**: Displays the live randomly generated 6-digit number that must be entered
- *      into the WakeGuard PC Challenge Terminal (or accepts the 6-digit Offline PC Unlock Confirmation Token).
+ *      into the SnoozeShield PC Challenge Terminal (or accepts the 6-digit Offline PC Unlock Confirmation Token).
  */
 class AlarmActivity : ComponentActivity() {
 
@@ -68,7 +68,7 @@ class AlarmActivity : ComponentActivity() {
         if (!granted) {
             Toast.makeText(
                 this,
-                "Camera permission required for ML Kit Barcode scan — use 6-Digit PC Challenge!",
+                "Camera permission required for ML Kit Barcode scan â€” use 6-Digit PC Challenge!",
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -83,7 +83,7 @@ class AlarmActivity : ComponentActivity() {
             override fun handleOnBackPressed() {
                 Toast.makeText(
                     this@AlarmActivity,
-                    "🚨 WakeGuard Locked! Scan your barcode or enter the 6-digit code on your computer.",
+                    "ðŸš¨ SnoozeShield Locked! Scan your barcode or enter the 6-digit code on your computer.",
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -97,7 +97,7 @@ class AlarmActivity : ComponentActivity() {
         val targetBarcode = intent.getStringExtra(AlarmRingingService.EXTRA_TARGET_BARCODE) ?: "012345678905"
 
         setContent {
-            WakeGuardChallengeScreen(
+            SnoozeShieldChallengeScreen(
                 alarmLabel = alarmLabel,
                 targetBarcode = targetBarcode,
                 onDisarmSuccess = { method ->
@@ -137,7 +137,7 @@ class AlarmActivity : ComponentActivity() {
             am.setStreamVolume(AudioManager.STREAM_ALARM, maxVol, 0)
             Toast.makeText(
                 this,
-                "🔊 Volume Guard Active: Alarm volume locked at 100%!",
+                "ðŸ”Š Volume Guard Active: Alarm volume locked at 100%!",
                 Toast.LENGTH_SHORT
             ).show()
             return true
@@ -154,7 +154,7 @@ class AlarmActivity : ComponentActivity() {
         }
         startService(stopIntent)
 
-        Toast.makeText(this, "✓ Alarm Disarmed via $method! Good morning!", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "âœ“ Alarm Disarmed via $method! Good morning!", Toast.LENGTH_LONG).show()
         finish()
     }
 
@@ -165,7 +165,7 @@ class AlarmActivity : ComponentActivity() {
 }
 
 @Composable
-fun WakeGuardChallengeScreen(
+fun SnoozeShieldChallengeScreen(
     alarmLabel: String,
     targetBarcode: String,
     onDisarmSuccess: (String) -> Unit
@@ -196,7 +196,7 @@ fun WakeGuardChallengeScreen(
         // TOP ALARM HEADER
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "🚨 WAKEGUARD SIREN ACTIVE • 100% VOLUME LOCK",
+                text = "ðŸš¨ SNOOZESHIELD SIREN ACTIVE â€¢ 100% VOLUME LOCK",
                 color = Color(0xFFF43F5E),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Black,
@@ -237,7 +237,7 @@ fun WakeGuardChallengeScreen(
                 letterSpacing = 6.sp
             )
             Text(
-                text = "Rotates in ${challengePair.secondsRemaining}s • Synced with Nexus Master OS / PC Hub",
+                text = "Rotates in ${challengePair.secondsRemaining}s â€¢ Synced with Nexus Master OS / PC Hub",
                 color = Color(0xFF94A3B8),
                 fontSize = 11.sp,
                 fontFamily = FontFamily.Monospace

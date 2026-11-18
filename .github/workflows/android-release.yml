@@ -1,4 +1,4 @@
-name: Build & Release WakeGuard Android APK (Obtainium Ready)
+﻿name: Build & Release SnoozeShield Android APK (Obtainium Ready)
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
         working-directory: android_app
 
     steps:
-      - name: Checkout WakeGuard Repository
+      - name: Checkout SnoozeShield Repository
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
@@ -36,16 +36,16 @@ jobs:
 
       - name: Prepare Clean APK Filename for Obtainium
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk ../wakeguard-alarm-v1.0.${{ github.run_number }}.apk
+          cp app/build/outputs/apk/debug/app-debug.apk ../snoozeshield-alarm-v1.0.${{ github.run_number }}.apk
 
       - name: Create GitHub Release for Obtainium Auto-Updates
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
-          name: "WakeGuard Alarm v1.0.${{ github.run_number }}"
+          name: "SnoozeShield Alarm v1.0.${{ github.run_number }}"
           body: |
-            Automated Android APK build for **Obtainium** (`wakeguard-alarm-v1.0.${{ github.run_number }}.apk`).
+            Automated Android APK build for **Obtainium** (`snoozeshield-alarm-v1.0.${{ github.run_number }}.apk`).
             - Includes ML Kit Barcode Scanner, 6-Digit PC Challenge Sync, Full-Screen Intent Lockscreen Wake, `OnBackPressedCallback`, and 100% `STREAM_ALARM` Volume Enforcer.
-          files: wakeguard-alarm-v1.0.${{ github.run_number }}.apk
+          files: snoozeshield-alarm-v1.0.${{ github.run_number }}.apk
           draft: false
           prerelease: false
